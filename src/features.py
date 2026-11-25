@@ -6,7 +6,6 @@ Este módulo trata cada URL somente como texto. Nenhuma conexão de rede é real
 from __future__ import annotations
 
 import ipaddress
-import re
 from urllib.parse import urlsplit
 
 import pandas as pd
