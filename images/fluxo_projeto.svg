@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxo do projeto de análise de URLs</title>
+  <desc id="desc">Etapas: CSV de entrada, validação e limpeza, extração de características, análise Python e SQL, relatórios e dashboard Power BI.</desc>
+  <rect width="1200" height="360" rx="24" fill="#f5f7fb"/>
+  <text x="600" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#172033">Fluxo de trabalho da análise</text>
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <g>
+      <rect x="35" y="115" width="170" height="130" rx="16" fill="#dceafe" stroke="#3973c6" stroke-width="2"/>
+      <text x="120" y="160" font-size="19" font-weight="700" fill="#17345c">1. Entrada</text>
+      <text x="120" y="190" font-size="15" fill="#17345c">CSV com URL</text>
+      <text x="120" y="213" font-size="15" fill="#17345c">e classificação</text>
+    </g>
+    <g>
+      <rect x="245" y="115" width="170" height="130" rx="16" fill="#e5f4ec" stroke="#3d9365" stroke-width="2"/>
+      <text x="330" y="160" font-size="19" font-weight="700" fill="#174b34">2. Validação</text>
+      <text x="330" y="190" font-size="15" fill="#174b34">Limpeza e</text>
+      <text x="330" y="213" font-size="15" fill="#174b34">padronização</text>
+    </g>
+    <g>
+      <rect x="455" y="115" width="170" height="130" rx="16" fill="#fff0d8" stroke="#c58a2c" stroke-width="2"/>
+      <text x="540" y="160" font-size="19" font-weight="700" fill="#65420f">3. Recursos</text>
+      <text x="540" y="190" font-size="15" fill="#65420f">Extração de</text>
+      <text x="540" y="213" font-size="15" fill="#65420f">características</text>
+    </g>
+    <g>
+      <rect x="665" y="115" width="170" height="130" rx="16" fill="#eee7fb" stroke="#8261bd" stroke-width="2"/>
+      <text x="750" y="160" font-size="19" font-weight="700" fill="#402c68">4. Análise</text>
+      <text x="750" y="190" font-size="15" fill="#402c68">Python, Pandas</text>
+      <text x="750" y="213" font-size="15" fill="#402c68">e SQL</text>
+    </g>
+    <g>
+      <rect x="875" y="115" width="170" height="130" rx="16" fill="#fce5e5" stroke="#c66a6a" stroke-width="2"/>
+      <text x="960" y="160" font-size="19" font-weight="700" fill="#652e2e">5. Resultados</text>
+      <text x="960" y="190" font-size="15" fill="#652e2e">Tabelas e</text>
+      <text x="960" y="213" font-size="15" fill="#652e2e">gráficos</text>
+    </g>
+    <g>
+      <rect x="1080" y="115" width="100" height="130" rx="16" fill="#d9f1f2" stroke="#398e91" stroke-width="2"/>
+      <text x="1130" y="160" font-size="18" font-weight="700" fill="#174e50">6.</text>
+      <text x="1130" y="190" font-size="15" fill="#174e50">Power</text>
+      <text x="1130" y="213" font-size="15" fill="#174e50">BI</text>
+    </g>
+  </g>
+  <g stroke="#596579" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M208 180 H238 M230 172 L238 180 L230 188"/>
+    <path d="M418 180 H448 M440 172 L448 180 L440 188"/>
+    <path d="M628 180 H658 M650 172 L658 180 L650 188"/>
+    <path d="M838 180 H868 M860 172 L868 180 L860 188"/>
+    <path d="M1048 180 H1073 M1065 172 L1073 180 L1065 188"/>
+  </g>
+  <text x="600" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#465267">O processamento é local: as URLs são tratadas como texto e não são acessadas pela aplicação.</text>
+</svg>
