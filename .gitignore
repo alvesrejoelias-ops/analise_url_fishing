@@ -1,0 +1,25 @@
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+
+# Arquivos locais
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dados e relatórios gerados pelo pipeline
+data/processed/*
+!data/processed/.gitkeep
+reports/*.csv
+reports/figures/*.png
+
+# Bancos de dados locais
+*.db
+*.sqlite
+*.sqlite3
