@@ -1,0 +1,1 @@
+"""Módulos de análise de URLs do projeto."""
