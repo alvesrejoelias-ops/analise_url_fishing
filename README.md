@@ -4,7 +4,7 @@ Projeto de análise de dados desenvolvido com **Python, Pandas, NumPy, SQL e Pow
 
 > **Aviso metodológico:** a base incluída neste repositório é pequena e sintética, criada exclusivamente para demonstrar o funcionamento do pipeline. Ela não representa uma amostra real da internet e não permite medir a eficácia de um detector. As características analisadas são indicadores exploratórios, não provas de que uma URL é maliciosa.
 
-## Objetivos
+## Visão geral do processo\n\n![Diagrama do fluxo de análise](images/fluxo_projeto.svg)\n\n## Objetivos
 
 - Preparar e validar dados tabulares de URLs.
 - Extrair características estruturais sem abrir ou acessar os endereços.
