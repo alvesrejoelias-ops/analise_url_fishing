@@ -32,7 +32,7 @@ Projeto de análise exploratória de dados desenvolvido com **Python, Pandas, Nu
 
 ## Estrutura do projeto
 
-\`\`\`text
+```text
 analise_url_fishing/
 ├── .github/workflows/tests.yml
 ├── data/
@@ -51,7 +51,7 @@ analise_url_fishing/
 ├── .gitignore
 ├── main.py
 └── requirements.txt
-\`\`\`
+```
 
 ## Como executar
 
@@ -63,45 +63,45 @@ analise_url_fishing/
 
 ### Instalação no Windows (PowerShell)
 
-\`\`\`powershell
+```powershell
 git clone https://github.com/alvesrejoelias-ops/analise_url_fishing.git
 cd analise_url_fishing
 python -m venv .venv
-.venv\\Scripts\\Activate.ps1
+.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-\`\`\`
+```
 
 ### Executar a análise
 
-\`\`\`powershell
+```powershell
 python main.py
-\`\`\`
+```
 
-Para analisar outro CSV com as colunas url e label:
+Para analisar outro CSV com as colunas `url` e `label`:
 
-\`\`\`powershell
-python main.py --input "caminho\\para\\seu_arquivo.csv"
-\`\`\`
+```powershell
+python main.py --input "caminho\para\seu_arquivo.csv"
+```
 
 ### Executar os testes
 
-\`\`\`powershell
+```powershell
 python -m unittest discover -s tests -v
-\`\`\`
+```
 
 Os testes verificam extração de características, URLs malformadas, endereços IPv4/IPv6, validação de CSV, rótulos conflitantes, resumo estatístico e gravação no SQLite. O GitHub Actions também executa a suíte automaticamente em Python 3.10, 3.11 e 3.12.
 
 ## Arquivos gerados
 
-Depois de executar python main.py, os seguintes arquivos são criados localmente:
+Depois de executar `python main.py`, os seguintes arquivos são criados localmente:
 
-- data/processed/urls_analisadas.csv: dados de entrada validados e enriquecidos.
-- data/processed/analise_urls.db: banco SQLite com a tabela urls_analysis.
-- reports/resumo_por_classe.csv: estatísticas agrupadas por classificação.
-- reports/figures/distribuicao_classes.png: quantidade de registros por classe.
-- reports/figures/comprimento_urls.png: distribuição do comprimento textual.
-- reports/figures/indicadores_estruturais.png: proporção de indicadores por classe.
+- `data/processed/urls_analisadas.csv`: dados de entrada validados e enriquecidos.
+- `data/processed/analise_urls.db`: banco SQLite com a tabela `urls_analysis`.
+- `reports/resumo_por_classe.csv`: estatísticas agrupadas por classificação.
+- `reports/figures/distribuicao_classes.png`: quantidade de registros por classe.
+- `reports/figures/comprimento_urls.png`: distribuição do comprimento textual.
+- `reports/figures/indicadores_estruturais.png`: proporção de indicadores por classe.
 
 Arquivos gerados e bancos locais não são versionados pelo Git.
 
@@ -109,26 +109,26 @@ Arquivos gerados e bancos locais não são versionados pelo Git.
 
 | Campo | Descrição |
 |---|---|
-| url_length | Quantidade de caracteres da URL |
-| dot_count | Quantidade de pontos no texto |
-| hyphen_count | Quantidade de hífens no texto |
-| digit_count | Quantidade de dígitos |
-| has_https | Indica se a URL começa com o esquema HTTPS |
-| has_ip_address | Indica se o host é um endereço IPv4 ou IPv6 |
-| has_at_symbol | Indica a presença de @ na autoridade da URL |
-| subdomain_count | Contagem aproximada de subdomínios; não se aplica a hosts IP |
-| query_parameter_count | Quantidade de pares na query string, incluindo valores vazios |
-| has_suspicious_keyword | Indica a presença de termos selecionados no texto |
+| `url_length` | Quantidade de caracteres da URL |
+| `dot_count` | Quantidade de pontos no texto |
+| `hyphen_count` | Quantidade de hífens no texto |
+| `digit_count` | Quantidade de dígitos |
+| `has_https` | Indica se a URL começa com o esquema HTTPS |
+| `has_ip_address` | Indica se o host é um endereço IPv4 ou IPv6 |
+| `has_at_symbol` | Indica a presença de `@` na autoridade da URL |
+| `subdomain_count` | Contagem aproximada de subdomínios; não se aplica a hosts IP |
+| `query_parameter_count` | Quantidade de pares na query string, incluindo valores vazios |
+| `has_suspicious_keyword` | Indica a presença de termos selecionados no texto |
 
 A contagem de subdomínios é aproximada e não utiliza uma lista de sufixos públicos. A presença de HTTPS não valida certificado, reputação ou segurança do site. Os termos selecionados podem aparecer em páginas legítimas.
 
 ## Consultas SQL
 
-As consultas estão em sql/analises.sql. Elas demonstram contagem por classe, médias de características e comparação de indicadores. O banco SQLite é criado automaticamente pelo pipeline.
+As consultas estão em `sql/analises.sql`. Elas demonstram contagem por classe, médias de características e comparação de indicadores. O banco SQLite é criado automaticamente pelo pipeline.
 
 ## Power BI
 
-Consulte docs/power_bi.md para importar o CSV tratado e montar medidas e visuais. O arquivo PBIX deve ser criado e salvo manualmente no Power BI Desktop.
+Consulte `docs/power_bi.md` para importar o CSV tratado e montar medidas e visuais. O arquivo PBIX deve ser criado e salvo manualmente no Power BI Desktop.
 
 ## Limitações e responsabilidade
 
@@ -139,7 +139,7 @@ Consulte docs/power_bi.md para importar o CSV tratado e montar medidas e visuais
 - URLs repetidas com rótulos conflitantes são rejeitadas para evitar estatísticas inconsistentes.
 - Não utilize o projeto como ferramenta de bloqueio, decisão operacional ou classificação definitiva de segurança.
 
-Leia docs/metodologia.md para conhecer as decisões de tratamento e as limitações da análise.
+Leia `docs/metodologia.md` para conhecer as decisões de tratamento e as limitações da análise.
 
 ## Próximas evoluções
 
