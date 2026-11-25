@@ -1,51 +1,53 @@
-# Análise de URLs: identificação de padrões associados a phishing
+# Análise de URLs: padrões associados a phishing
 
-Projeto de análise de dados desenvolvido com **Python, Pandas, NumPy, SQL e Power BI** para investigar características estruturais de URLs classificadas como legítimas ou associadas a phishing.
+Projeto de análise exploratória de dados desenvolvido com **Python, Pandas, NumPy, SQL/SQLite e Matplotlib**, com possibilidade de visualização complementar no Power BI.
 
-> **Aviso metodológico:** a base incluída neste repositório é pequena e sintética, criada exclusivamente para demonstrar o funcionamento do pipeline. Ela não representa uma amostra real da internet e não permite medir a eficácia de um detector. As características analisadas são indicadores exploratórios, não provas de que uma URL é maliciosa.
+> **Importante:** a base incluída é sintética e didática. Ela serve para demonstrar o pipeline e testar o código, mas não representa uma amostra real da internet nem permite medir a eficácia de um detector. Os indicadores são sinais exploratórios, não provas de fraude.
 
-## Visão geral do processo\n\n![Diagrama do fluxo de análise](images/fluxo_projeto.svg)\n\n## Objetivos
+## Visão geral do processo
 
-- Preparar e validar dados tabulares de URLs.
-- Extrair características estruturais sem abrir ou acessar os endereços.
-- Comparar padrões entre os rótulos legítimo e phishing.
-- Armazenar os dados tratados em CSV e SQLite.
-- Produzir indicadores e gráficos para apoiar uma análise exploratória.
-- Disponibilizar uma estrutura que possa ser conectada ao Power BI.
+![Diagrama do fluxo de análise](images/fluxo_projeto.svg)
+
+## Objetivos
+
+- Validar e preparar uma base tabular de URLs.
+- Extrair características estruturais sem abrir os endereços ou fazer requisições de rede.
+- Comparar padrões entre registros rotulados como legítimos e phishing.
+- Exportar os dados tratados para CSV e SQLite.
+- Gerar estatísticas descritivas e gráficos que apoiem a análise exploratória.
+- Disponibilizar uma base tratada para construção de um dashboard no Power BI.
 
 ## Tecnologias
 
 | Tecnologia | Aplicação |
 |---|---|
 | Python | Organização e execução do pipeline |
-| Pandas | Leitura, limpeza e transformação dos dados |
-| NumPy | Operações numéricas e tratamento de valores ausentes |
-| SQL / SQLite | Consultas e agregações analíticas |
+| Pandas | Leitura, limpeza, transformação e agregação |
+| NumPy | Tratamento de valores numéricos não finitos |
+| SQL / SQLite | Armazenamento e consultas analíticas |
 | Matplotlib | Geração de gráficos |
-| Power BI | Construção de dashboard a partir dos arquivos exportados |
+| unittest | Testes automatizados |
+| GitHub Actions | Execução automática dos testes em diferentes versões do Python |
+| Power BI | Construção opcional de dashboard |
 
 ## Estrutura do projeto
 
 ```text
 analise_url_fishing/
+├── .github/workflows/tests.yml
 ├── data/
-│   ├── raw/
-│   │   └── urls_exemplo.csv
-│   ├── processed/
+│   ├── raw/urls_exemplo.csv
 │   └── README.md
 ├── docs/
 │   ├── metodologia.md
 │   └── power_bi.md
-├── images/
-│   └── fluxo_projeto.svg
-├── reports/
-│   └── figures/
-├── sql/
-│   └── analises.sql
+├── images/fluxo_projeto.svg
+├── sql/analises.sql
 ├── src/
 │   ├── __init__.py
 │   ├── features.py
 │   └── pipeline.py
+├── tests/test_analysis.py
 ├── .gitignore
 ├── main.py
 └── requirements.txt
@@ -53,84 +55,99 @@ analise_url_fishing/
 
 ## Como executar
 
-### 1. Pré-requisitos
+### Pré-requisitos
 
 - Python 3.10 ou superior.
-- Git (opcional, para clonar o repositório).
-- Power BI Desktop (opcional, para montar o dashboard).
+- Git, caso queira clonar o repositório.
+- Power BI Desktop, somente para criar o dashboard opcional.
 
-### 2. Baixar o projeto e instalar dependências
+### Instalação no Windows (PowerShell)
 
-```bash
+```powershell
 git clone https://github.com/alvesrejoelias-ops/analise_url_fishing.git
 cd analise_url_fishing
 python -m venv .venv
-```
-
-No Windows:
-
-```powershell
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 3. Executar a análise
+### Executar a análise
 
-```bash
+```powershell
 python main.py
 ```
 
-O programa lê `data/raw/urls_exemplo.csv` e gera:
+Para analisar outro CSV com as colunas `url` e `label`:
 
-- `data/processed/urls_analisadas.csv`: base tratada e enriquecida com características.
+```powershell
+python main.py --input "caminho\para\seu_arquivo.csv"
+```
+
+### Executar os testes
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+Os testes verificam extração de características, URLs malformadas, endereços IPv4/IPv6, validação de CSV, rótulos conflitantes, resumo estatístico e gravação no SQLite. O GitHub Actions também executa a suíte automaticamente em Python 3.10, 3.11 e 3.12.
+
+## Arquivos gerados
+
+Depois de executar `python main.py`, os seguintes arquivos são criados localmente:
+
+- `data/processed/urls_analisadas.csv`: dados de entrada validados e enriquecidos.
 - `data/processed/analise_urls.db`: banco SQLite com a tabela `urls_analysis`.
-- `reports/resumo_por_classe.csv`: indicadores agrupados por classificação.
-- `reports/figures/distribuicao_classes.png`: distribuição dos registros por classe.
-- `reports/figures/comprimento_urls.png`: comparação do comprimento das URLs.
-- `reports/figures/indicadores_estruturais.png`: comparação de características estruturais.
+- `reports/resumo_por_classe.csv`: estatísticas agrupadas por classificação.
+- `reports/figures/distribuicao_classes.png`: quantidade de registros por classe.
+- `reports/figures/comprimento_urls.png`: distribuição do comprimento textual.
+- `reports/figures/indicadores_estruturais.png`: proporção de indicadores por classe.
 
-## Campos analisados
+Arquivos gerados e bancos locais não são versionados pelo Git.
+
+## Características analisadas
 
 | Campo | Descrição |
 |---|---|
 | `url_length` | Quantidade de caracteres da URL |
-| `dot_count` | Quantidade de pontos |
-| `hyphen_count` | Quantidade de hífens |
+| `dot_count` | Quantidade de pontos no texto |
+| `hyphen_count` | Quantidade de hífens no texto |
 | `digit_count` | Quantidade de dígitos |
-| `has_https` | Indica se o esquema informado é HTTPS |
-| `has_ip_address` | Indica se o host é um endereço IP |
-| `has_at_symbol` | Indica a presença do caractere @ |
-| `subdomain_count` | Quantidade aproximada de subdomínios |
-| `query_parameter_count` | Quantidade de parâmetros na query string |
-| `has_suspicious_keyword` | Indica a presença de termos selecionados para triagem |
+| `has_https` | Indica se a URL começa com o esquema HTTPS |
+| `has_ip_address` | Indica se o host é um endereço IPv4 ou IPv6 |
+| `has_at_symbol` | Indica a presença de `@` na autoridade da URL |
+| `subdomain_count` | Contagem aproximada de subdomínios; não se aplica a hosts IP |
+| `query_parameter_count` | Quantidade de pares na query string, incluindo valores vazios |
+| `has_suspicious_keyword` | Indica a presença de termos selecionados no texto |
 
-**Redirecionamentos:** não são medidos neste projeto porque isso exigiria acessar os endereços. O pipeline não realiza requisições HTTP nem segue links. Se uma base confiável fornecer uma coluna `redirect_count`, ela poderá ser incorporada em uma etapa futura, com documentação da origem.
+A contagem de subdomínios é aproximada e não utiliza uma lista de sufixos públicos. A presença de HTTPS não valida certificado, reputação ou segurança do site. Os termos selecionados podem aparecer em páginas legítimas.
 
 ## Consultas SQL
 
-As consultas estão em `sql/analises.sql`. Elas demonstram contagem por classe, médias de características e comparação de indicadores. O banco SQLite é criado automaticamente ao executar o pipeline.
+As consultas estão em `sql/analises.sql`. Elas demonstram contagem por classe, médias de características e comparação de indicadores. O banco SQLite é criado automaticamente pelo pipeline.
 
 ## Power BI
 
-Siga as instruções em [docs/power_bi.md](docs/power_bi.md) para importar o CSV tratado e criar indicadores e visuais.
+Consulte `docs/power_bi.md` para importar o CSV tratado e montar medidas e visuais. O arquivo PBIX deve ser criado e salvo manualmente no Power BI Desktop.
 
 ## Limitações e responsabilidade
 
-- O conjunto de exemplo é sintético e serve apenas para validar o fluxo técnico.
-- Uma URL com HTTPS, domínio longo ou palavras específicas não é necessariamente fraudulenta.
-- A ausência desses sinais não garante segurança.
-- Nenhuma URL é acessada, testada ou aberta pelo código.
-- Não utilize este projeto como ferramenta de bloqueio, decisão de segurança ou classificação operacional.
+- O conjunto de exemplo é sintético e não sustenta conclusões sobre phishing no mundo real.
+- Uma URL com HTTPS, domínio longo ou palavra específica não é necessariamente fraudulenta.
+- A ausência desses sinais não garante que um endereço seja seguro.
+- O código não acessa URLs, não executa requisições HTTP e não segue redirecionamentos.
+- URLs repetidas com rótulos conflitantes são rejeitadas para evitar estatísticas inconsistentes.
+- Não utilize o projeto como ferramenta de bloqueio, decisão operacional ou classificação definitiva de segurança.
 
-Leia [docs/metodologia.md](docs/metodologia.md) para conhecer as decisões de tratamento e as limitações da análise.
+Leia `docs/metodologia.md` para conhecer as decisões de tratamento e as limitações da análise.
 
-## Próximas melhorias
+## Próximas evoluções
 
-1. Substituir a base demonstrativa por uma fonte pública, documentada e licenciada.
-2. Aumentar a amostra e avaliar o equilíbrio entre as classes.
-3. Incluir validação de qualidade dos dados e testes automatizados.
-4. Incorporar dados de redirecionamento somente quando fornecidos por uma fonte confiável.
-5. Desenvolver um dashboard no Power BI com filtros por classe e indicadores.
+1. Substituir a base demonstrativa por uma fonte pública real, com licença e metodologia documentadas.
+2. Registrar fonte, data de coleta e qualidade dos rótulos.
+3. Ampliar a análise temporal e avaliar o equilíbrio entre classes.
+4. Construir e documentar um dashboard no Power BI com dados reais apropriados.
+5. Somente em uma etapa separada, avaliar modelos preditivos com divisão de dados e métricas adequadas.
 
 ---
 Projeto educacional de análise de dados.
