@@ -1,42 +1,58 @@
-"""Ponto de entrada do projeto de análise exploratória de URLs."""
+"""Ponto de entrada da análise exploratória de URLs."""
 
 from __future__ import annotations
+
+import argparse
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from src.pipeline import FIGURES_DIR, run_pipeline
+from src.pipeline import FIGURES_DIR, RAW_FILE, run_pipeline
 
 
 def create_charts(data: pd.DataFrame) -> None:
     """Gera gráficos exploratórios e os salva na pasta de relatórios."""
+    required_columns = {
+        "label",
+        "url_length",
+        "has_https",
+        "has_ip_address",
+        "has_at_symbol",
+        "has_suspicious_keyword",
+    }
+    missing_columns = required_columns.difference(data.columns)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"Colunas necessárias para os gráficos ausentes: {missing}")
+    if data.empty:
+        raise ValueError("Não há dados para gerar gráficos.")
+
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Gráfico 1: quantidade de registros em cada classe.
     class_counts = data["label"].value_counts().reindex(
         ["legitima", "phishing"], fill_value=0
     )
-    ax = class_counts.plot(kind="bar", rot=0, figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(8, 5))
+    class_counts.plot(kind="bar", rot=0, ax=ax)
     ax.set_title("Quantidade de registros por classificação")
     ax.set_xlabel("Classificação")
     ax.set_ylabel("Quantidade de URLs")
     ax.grid(axis="y", alpha=0.25)
-    plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "distribuicao_classes.png", dpi=150)
-    plt.close()
+    fig.tight_layout()
+    fig.savefig(FIGURES_DIR / "distribuicao_classes.png", dpi=150)
+    plt.close(fig)
 
-    # Gráfico 2: compara a distribuição do comprimento textual das URLs.
     fig, ax = plt.subplots(figsize=(8, 5))
     data.boxplot(column="url_length", by="label", ax=ax, grid=False)
     fig.suptitle("")
     ax.set_title("Comprimento das URLs por classificação")
     ax.set_xlabel("Classificação")
     ax.set_ylabel("Quantidade de caracteres")
-    plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "comprimento_urls.png", dpi=150)
-    plt.close()
+    fig.tight_layout()
+    fig.savefig(FIGURES_DIR / "comprimento_urls.png", dpi=150)
+    plt.close(fig)
 
-    # Gráfico 3: compara a frequência de alguns indicadores estruturais.
     feature_columns = [
         "has_https",
         "has_ip_address",
@@ -44,22 +60,34 @@ def create_charts(data: pd.DataFrame) -> None:
         "has_suspicious_keyword",
     ]
     rates = data.groupby("label")[feature_columns].mean().T
-    ax = rates.plot(kind="bar", figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
+    rates.plot(kind="bar", ax=ax)
     ax.set_title("Proporção de registros com cada indicador")
     ax.set_xlabel("Indicador")
     ax.set_ylabel("Proporção")
     ax.set_ylim(0, 1)
     ax.legend(title="Classificação")
     ax.grid(axis="y", alpha=0.25)
-    plt.xticks(rotation=15, ha="right")
-    plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "indicadores_estruturais.png", dpi=150)
-    plt.close()
+    ax.tick_params(axis="x", labelrotation=15)
+    fig.tight_layout()
+    fig.savefig(FIGURES_DIR / "indicadores_estruturais.png", dpi=150)
+    plt.close(fig)
 
 
 def main() -> None:
-    """Coordena o processamento, a geração dos gráficos e o resumo final."""
-    data, summary = run_pipeline()
+    """Executa o pipeline, gera os gráficos e exibe o resumo."""
+    parser = argparse.ArgumentParser(
+        description="Analisa características estruturais de URLs em um CSV."
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=RAW_FILE,
+        help="Caminho do CSV de entrada (padrão: data/raw/urls_exemplo.csv).",
+    )
+    args = parser.parse_args()
+
+    data, summary = run_pipeline(args.input)
     create_charts(data)
 
     print("\nANÁLISE CONCLUÍDA")
