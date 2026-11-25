@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.features import add_url_features
+from src.features import FEATURE_COLUMNS, add_url_features
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 RAW_FILE = ROOT_DIR / "data" / "raw" / "urls_exemplo.csv"
@@ -20,72 +20,87 @@ DATABASE_FILE = PROCESSED_DIR / "analise_urls.db"
 VALID_LABELS = {"legitima", "phishing"}
 
 
-def load_and_validate_data(file_path: Path = RAW_FILE) -> pd.DataFrame:
-    """Carrega o CSV e verifica os campos essenciais antes da análise."""
-    if not file_path.exists():
-        raise FileNotFoundError(
-            f"Arquivo de entrada não encontrado: {file_path}. "
-            "Verifique a pasta data/raw."
-        )
+def load_and_validate_data(file_path: str | Path = RAW_FILE) -> pd.DataFrame:
+    """Carrega o CSV, valida campos e rejeita rótulos conflitantes."""
+    source = Path(file_path)
+    if not source.is_file():
+        raise FileNotFoundError(f"Arquivo de entrada não encontrado: {source}")
 
-    data = pd.read_csv(file_path)
+    try:
+        data = pd.read_csv(
+            source,
+            dtype={"url": "string", "label": "string"},
+            keep_default_na=False,
+        )
+    except pd.errors.EmptyDataError as error:
+        raise ValueError("O arquivo CSV está vazio ou não contém cabeçalho.") from error
 
     required_columns = {"url", "label"}
     missing_columns = required_columns.difference(data.columns)
     if missing_columns:
-        raise ValueError(
-            f"Colunas obrigatórias ausentes: {', '.join(sorted(missing_columns))}"
-        )
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"Colunas obrigatórias ausentes: {missing}")
 
     data = data[["url", "label"]].copy()
-    data["url"] = data["url"].fillna("").astype(str).str.strip()
-    data["label"] = data["label"].fillna("").astype(str).str.strip().str.lower()
-
-    # Registros sem URL ou sem uma classificação válida não entram na análise.
-    data = data[(data["url"] != "") & (data["label"].isin(VALID_LABELS))]
-    data = data.drop_duplicates(subset=["url", "label"]).reset_index(drop=True)
+    data["url"] = data["url"].str.strip()
+    data["label"] = data["label"].str.strip().str.lower()
+    data = data.loc[
+        data["url"].ne("") & data["label"].isin(VALID_LABELS)
+    ].copy()
 
     if data.empty:
-        raise ValueError("Não há registros válidos após a etapa de validação.")
+        raise ValueError(
+            "Não há registros válidos. Verifique URLs e rótulos "
+            "('legitima' ou 'phishing')."
+        )
 
-    return data
+    # Uma mesma URL com rótulos diferentes indica conflito na fonte dos dados.
+    conflicting_urls = data.groupby("url")["label"].nunique()
+    conflicting_urls = conflicting_urls[conflicting_urls > 1]
+    if not conflicting_urls.empty:
+        raise ValueError(
+            f"Foram encontradas {len(conflicting_urls)} URL(s) com rótulos "
+            "conflitantes. Corrija a classificação antes da análise."
+        )
+
+    return data.drop_duplicates(subset=["url", "label"]).reset_index(drop=True)
 
 
 def build_summary(data: pd.DataFrame) -> pd.DataFrame:
-    """Calcula estatísticas descritivas por classe."""
-    numeric_columns = [
-        "url_length",
-        "dot_count",
-        "hyphen_count",
-        "digit_count",
-        "has_https",
-        "has_ip_address",
-        "has_at_symbol",
-        "subdomain_count",
-        "query_parameter_count",
-        "has_suspicious_keyword",
-    ]
+    """Calcula contagem, média e mediana dos indicadores por classe."""
+    missing_columns = set(FEATURE_COLUMNS).difference(data.columns)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"Colunas de características ausentes: {missing}")
+    if "label" not in data.columns:
+        raise ValueError("A coluna obrigatória 'label' não foi encontrada.")
+    if data.empty:
+        raise ValueError("Não há registros para gerar o resumo estatístico.")
 
-    summary = data.groupby("label")[numeric_columns].agg(["count", "mean", "median"])
+    summary = data.groupby("label")[list(FEATURE_COLUMNS)].agg(
+        ["count", "mean", "median"]
+    )
     summary.columns = [f"{column}_{stat}" for column, stat in summary.columns]
-    summary = summary.reset_index()
-
-    # Garante que valores numéricos ausentes não contaminem os cálculos.
-    summary = summary.replace([np.inf, -np.inf], np.nan)
-    return summary
+    return summary.reset_index().replace([np.inf, -np.inf], np.nan)
 
 
-def save_database(data: pd.DataFrame) -> None:
-    """Cria ou substitui a tabela analítica no banco SQLite local."""
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+def save_database(
+    data: pd.DataFrame,
+    database_file: str | Path = DATABASE_FILE,
+) -> None:
+    """Cria ou substitui a tabela analítica em um banco SQLite local."""
+    destination = Path(database_file)
+    destination.parent.mkdir(parents=True, exist_ok=True)
 
-    with sqlite3.connect(DATABASE_FILE) as connection:
+    with sqlite3.connect(destination) as connection:
         data.to_sql("urls_analysis", connection, if_exists="replace", index=False)
 
 
-def run_pipeline() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Executa todas as etapas e salva os resultados em arquivos locais."""
-    raw_data = load_and_validate_data()
+def run_pipeline(
+    input_file: str | Path = RAW_FILE,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Executa o pipeline e exporta CSV, resumo e banco SQLite."""
+    raw_data = load_and_validate_data(input_file)
     enriched_data = add_url_features(raw_data)
     summary = build_summary(enriched_data)
 
